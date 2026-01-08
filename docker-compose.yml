@@ -1,0 +1,57 @@
+  services:
+    db:
+      image: postgres:16-alpine
+      container_name: servicehub-db
+      environment:
+        POSTGRES_DB: servicehub
+        POSTGRES_USER: servicehub
+        POSTGRES_PASSWORD: servicehub
+      volumes:
+        - servicehub_pgdata:/var/lib/postgresql/data
+      healthcheck:
+        test: ["CMD-SHELL", "pg_isready -U servicehub -d servicehub"]
+        interval: 5s
+        timeout: 5s
+        retries: 10
+      networks:
+        - private
+
+    api:
+      build:
+        context: ./backend/servicehub-api
+        dockerfile: Dockerfile
+      container_name: servicehub-api
+      environment:
+        SPRING_PROFILES_ACTIVE: local
+        SERVICEHUB_DATABASE_URL: jdbc:postgresql://db:5432/servicehub
+        SERVICEHUB_DATABASE_USERNAME: servicehub
+        SERVICEHUB_DATABASE_PASSWORD: servicehub
+        SERVICEHUB_PRODUCT_NAME: ClimaFlow
+      depends_on:
+        db:
+          condition: service_healthy
+      ports:
+        - "8080:8080"
+      networks:
+        - private
+        - public
+
+    web:
+      build:
+        context: ./frontend/servicehub-web
+        dockerfile: Dockerfile.dev
+      container_name: servicehub-web
+      depends_on:
+        - api
+      ports:
+        - "4200:4200"
+      networks:
+        - public
+
+  volumes:
+    servicehub_pgdata:
+
+  networks:
+    public:
+    private:
+      internal: true

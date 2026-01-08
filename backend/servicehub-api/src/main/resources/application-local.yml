@@ -1,0 +1,14 @@
+spring:
+  datasource:
+    url: ${SERVICEHUB_DATABASE_URL:jdbc:postgresql://localhost:5432/servicehub}
+    username: ${SERVICEHUB_DATABASE_USERNAME:servicehub}
+    password: ${SERVICEHUB_DATABASE_PASSWORD:servicehub}
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+servicehub:
+  product-name: ${SERVICEHUB_PRODUCT_NAME:ClimaFlow}
